@@ -1,22 +1,19 @@
 # RambunctionVision 2021
 Vision code for FRC team Rambunction 4330 for the 2021 season.
 ## Requirments
-* Cmake: https://cmake.org
 * OpenCV: https://opencv.org
   
-*Note: these can not curretly be installed on the Laue school computers*
+*Note: these can not curretly be installed on the Laue school computers, but I am looking in to it.*
 ### Instalation
 Any supported package manager will work (or you can compile from scource), but here are some simple examples for varius platforms. 
 #### Linux (with apt):
 ```
-$ apt install cmake
 $ apt install opencv
 ```
 
 #### MacOS (with homebrew):
 https://brew.sh
 ```
-$ brew install cmake
 $ brew install opencv
 ```
 
@@ -51,9 +48,9 @@ Before running vision the camera must be setup to calculate thresholding values 
 
 The `setup` executable takes 3 arguments: a setup config file, a vision config file, and a path to an output file (All files must be in either .xml .yml or .json formatt).
 ```
-$ ./setup setupConfig.xml visionConfig.xml output.xml
+$ ./setup output.xml setupConfig.xml visionConfig.xml 
 ``` 
-If no argumanets are given it will use `setupConfig.xml`, `visionConfig.xml`, and output to `output.xml`. 
+If no argumanets are given it will use `setupConfig.xml`, `visionConfig.xml`, and output to `output.xml`. This will calibrate using this will run the setup using the included images. i.e. my pohone camera.
 
 ### setupConfig.xml
 I recomed that you dont directly edit any of the files and instead use a copy.

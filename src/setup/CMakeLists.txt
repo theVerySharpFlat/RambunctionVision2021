@@ -1,0 +1,5 @@
+set (CMAKE_CXX_STANDARD 11)
+find_package( OpenCV REQUIRED )
+add_executable(setup main.cpp hsvTunning.cpp calibrate.cpp detectTargets.cpp)
+target_link_libraries(setup ${OpenCV_LIBS} RambunctionVision)
+target_include_directories(setup PRIVATE ${PROJECT_SOURCE_DIR}/include)

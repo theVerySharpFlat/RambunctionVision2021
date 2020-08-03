@@ -3,6 +3,8 @@ bin/**
 lib/**
 
 vision
+!vision/
 setup
+!setup/
 
 output.xml
