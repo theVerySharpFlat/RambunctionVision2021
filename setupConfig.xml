@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<CalibrateConfig>
+  <!--Number of inner corners in rach row-->
+  <BoardWidth>9</BoardWidth>
+  <!--Number of inner corners in rach colum-->
+  <BoardHeight>6</BoardHeight>
+  <!--Side length of chessboard squares-->
+  <SquareSize>1</SquareSize>
+  <!--Number of images that will be captured for calibration-->
+  <NumberOfImages>50</NumberOfImages>
+  <!--Will capture images automaticly when chessboard in is view if value is not 0-->
+  <Automatic>1</Automatic>
+  <!--Delay in ms between captures if Automatic is not 0-->
+  <Delay>2500</Delay>
+  <!--Uses photos instead of video capture is not 0-->
+  <UsePhotos>1</UsePhotos>
+  <!--List of the calibration photos used if UseUhotos is not 0-->
+  <Images>
+    images/calibrateImages/0000.jpg
+    images/calibrateImages/0001.jpg
+    images/calibrateImages/0002.jpg
+    images/calibrateImages/0003.jpg
+    images/calibrateImages/0004.jpg
+    images/calibrateImages/0005.jpg
+    images/calibrateImages/0006.jpg
+    images/calibrateImages/0007.jpg
+    images/calibrateImages/0008.jpg
+    images/calibrateImages/0001.jpg
+    images/calibrateImages/0010.jpg
+    images/calibrateImages/0011.jpg
+    images/calibrateImages/0012.jpg
+    images/calibrateImages/0013.jpg
+    images/calibrateImages/0014.jpg
+    images/calibrateImages/0015.jpg
+  </Images>
+</CalibrateConfig>
+
+<ThresholdingConfig>
+  <!--Uses photos instead of video capture is not 0-->
+  <UsePhotos>1</UsePhotos>
+  <!--List of the calibration photos used if UseUhotos is not 0-->
+  <Images>
+    images/thresholdImages/0000.jpg
+    images/thresholdImages/0001.jpg
+    images/thresholdImages/0002.jpg
+    images/thresholdImages/0003.jpg
+    images/thresholdImages/0004.jpg
+    images/thresholdImages/0005.jpg
+    images/thresholdImages/0006.jpg
+    images/thresholdImages/0007.jpg
+    images/thresholdImages/0008.jpg
+    images/thresholdImages/0009.jpg
+    images/thresholdImages/0010.jpg
+    images/thresholdImages/0011.jpg
+    images/thresholdImages/0012.jpg
+    images/thresholdImages/0013.jpg
+    images/thresholdImages/0014.jpg
+    images/thresholdImages/0015.jpg
+  </Images>
+</ThresholdingConfig>
+</opencv_storage>
