@@ -87,7 +87,7 @@ void hsvTunningVideoCapture(rv::HSV &hsv, rv::Camera camera) {
   cv::createTrackbar("High S", window, &hsv.highS, hsv.max, onHighS, &hsv);
   cv::createTrackbar("Low V", window, &hsv.lowV, hsv.max, onLowV, &hsv);
   cv::createTrackbar("High V", window, &hsv.highV, hsv.max, onHighV, &hsv);
-  cv::Mat frame, frameHSV, thresh;
+  cv::Mat frame, frameHSV, thresh, threshColor, display;
 
   bool showThresh = true;
 
@@ -104,8 +104,22 @@ void hsvTunningVideoCapture(rv::HSV &hsv, rv::Camera camera) {
     cv::cvtColor(frame, frameHSV, cv::COLOR_BGR2HSV);
     // Detect the object based on HSV Range Values
     cv::inRange(frameHSV, hsv.lowScalar(), hsv.highScalar(), thresh);
+
+    cv::cvtColor(thresh, threshColor, cv::COLOR_GRAY2BGR);
+
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(thresh, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    display = showThresh ? threshColor : frame;
+
+    for (auto contour = contours.begin(); contour != contours.end(); contour++) {
+      std::vector<cv::Point> poly;
+      cv::approxPolyDP(*contour, poly, 2, true);
+      cv::drawContours(display, std::vector<std::vector<cv::Point>>{poly}, 0, cv::Scalar(255,0,0), 1);
+    }
+
     // Show the frames
-    cv::imshow(window, frame);
+    cv::imshow(window, display);
 
     // Parse key presses
     int key = cv::waitKey(30);
