@@ -8,3 +8,5 @@ setup
 !setup/
 
 output.xml
+visionConfig.xml
+setupConfig.xml
