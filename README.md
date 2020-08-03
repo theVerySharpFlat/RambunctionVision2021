@@ -2,46 +2,49 @@
 Vision code for FRC team Rambunction 4330 for the 2021 season.
 ## Requirments
 * OpenCV: https://opencv.org
-  
-*Note: these can not curretly be installed on the Laue school computers, but I am looking in to it.*
-### Instalation
+* CMake: https://cmake.org
+### Installation
 Any supported package manager will work (or you can compile from scource), but here are some simple examples for varius platforms. 
 #### Linux (with apt):
 ```
-$ apt install opencv
+$ apt install cmake
+$ apt install libopencv-dev
 ```
 
 #### MacOS (with homebrew):
 https://brew.sh
+
+*None: homebrew dose not currently work on the school computers, but I am working on a workaround*
 ```
+$ brew install cmake
 $ brew install opencv
 ```
 
 #### Windows:
-🤷 I have no idea???????
+[this link](https://www.opencv-srf.com/2017/11/install-opencv-with-visual-studio.html) should be an explination of how to install for windows, but I have never tried it, so I dont know if it works. 
+
+*Note: The rest of the instructins are for MacOS and Linxs/Unix and not Windows (exept if your running a linux subsystem, but I dont really know anything about that)*
 
 ## Build
 Naviget to project folder and creat build directory
 ```
 $ cd RambuncionVision2021
 $ mkdir build
-```
-Enter the build directory and compile with cmake.
-```
 $ cd build
+```
+Enter the build directory and compile with cmake. and then move back into the root folder
+```
 $ cmake ..
 $ make
+$ cd ..
 ```
 
 The executables can then be found in the /bin folder.
-```
-$ cd ..
-$ cd bin
-```
+
 I recomended that you copy the executables back into the projects root folder
 ```
-$ mv setup /../
-$ mv vision /../
+$ mv bin/setup ./
+$ mv bin/vision ./
 ```
 ## Setup
 Before running vision the camera must be setup to calculate thresholding values and intresic camera properties.  To run the setup you will need a chessboard [or this print out](images/pattern.png) and the target(s) you want to detect. Without retroreflective tape and a led ring I found that a cutout of brightly colord paper taped to a dark background works well.
@@ -145,5 +148,5 @@ Saves the calculated values to the output file
 Exits the program
 
 ## Vision
-Runs vision Software (Uncompleted)
+Runs vision Software (Incomplet). It will currently do nothing.
 
