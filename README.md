@@ -1,5 +1,9 @@
 # RambunctionVision 2021
 Vision code for FRC team Rambunction 4330 for the 2021 season.
+
+<image src="images/example_photo.png"
+     alt="Example Photo" height="250"/>
+     
 ## Requirments
 * OpenCV: https://opencv.org
 * CMake: https://cmake.org
@@ -14,7 +18,7 @@ $ apt install libopencv-dev
 #### MacOS (with homebrew):
 https://brew.sh
 
-*None: homebrew dose not currently work on the school computers, but I am working on a workaround*
+*None: homebrew dose not currently work on the school computers, but I am planning on asking permission shortly*
 ```
 $ brew install cmake
 $ brew install opencv
