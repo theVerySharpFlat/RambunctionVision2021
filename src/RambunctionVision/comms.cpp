@@ -8,6 +8,13 @@
 
 namespace rv {
 
+  Request::Request() {
+    action = "";
+    subject = "";
+    key = "";
+    value = "";
+  }
+
   Request::Request(std::string request) {
     std::size_t actionPivot = request.find(":");
     std::size_t subjectPivot = request.find(":", actionPivot + 1);

@@ -15,6 +15,7 @@ namespace rv {
     std::string value;
     std::string asString();
 
+    Request();
     Request(std::string request);
   };
 
