@@ -14,43 +14,39 @@ namespace rv {
     std::string key;
     std::string value;
     std::string asString();
+
+    Request(std::string request);
   };
 
-
-  Request parseRequest(std::string request);
-  Request error(std::string error, std::string key);
-
-  class Socket {
-    protected:
+  class Comms {
+    private:
       int sockfd;
       struct sockaddr_in address;
 
-      void creatSocket();
+      friend class Listener;
 
-    public:
-      Socket();
+      public:
+        Comms();
+        Comms(std::string address, int port);
+        ~Comms();
 
-      void send(Request request);
-      Request recive();
-      void closeSocket();
+        void connectTo(std::string address, int port);   
+        void send(Request request);
+        Request recive();   
   };
 
-  class Server: public Socket {
-    public:
-    Server();
-    Server(int port);
+  class Listener {
+    private:
+      int sockfd;
+      struct sockaddr_in address;
 
-    void bindTo(int port);
-    void startListening(int backlog = 5);
-    Server waitForConnection();
-  };
-
-  class Client: public Socket {
     public:
-      Client();
-      Client(std::string address, int port);
-      
-      void connectTo(std::string address, int port);
+      Listener();
+      Listener(int port, int backlog);
+      ~Listener();
+     
+      void startListening(int port, int backlog);
+      Comms waitForConnection();
   };
 }
 #endif

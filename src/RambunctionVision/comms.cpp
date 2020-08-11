@@ -1,120 +1,94 @@
 #include "RambunctionVision/comms.hpp"
 
 #include <iostream>
+#include <exception>
 
 #include <unistd.h>
 #include <arpa/inet.h>
 
 namespace rv {
 
+  Request::Request(std::string request) {
+    std::size_t actionPivot = request.find(":");
+    std::size_t subjectPivot = request.find(":", actionPivot + 1);
+    std::size_t assignmentPivot = request.find("=");
+
+    if (actionPivot != std::string::npos && subjectPivot!= std::string::npos) {
+      action = request.substr(0, actionPivot);
+      subject = request.substr(actionPivot+1, subjectPivot - (actionPivot+1));
+      key = request.substr(subjectPivot+1, assignmentPivot - (subjectPivot+1));
+      value = request.substr(assignmentPivot+1);
+    }
+  }
+
   std::string Request::asString() {
     return action + ":" + subject + ":" + key + "=" + value;
   }
 
-
-  Request parseRequest(std::string requestString) {
-    Request  request;
-
-    std::size_t actionPivot = requestString.find(":");
-    std::size_t subjectPivot = requestString.find(":", actionPivot + 1);
-    std::size_t assignmentPivot = requestString.find("=");
-
-    if (actionPivot != std::string::npos && subjectPivot!= std::string::npos && assignmentPivot != std::string::npos) {
-      request.action = requestString.substr(0, actionPivot);
-      request.subject = requestString.substr(actionPivot+1, subjectPivot - (actionPivot+1));
-      request.key = requestString.substr(subjectPivot+1, assignmentPivot - (subjectPivot+1));
-      request.value = requestString.substr(assignmentPivot+1);
-      return request;
-    }
-    throw "Invalid Formatt";
+  Listener::Listener() {
+    sockfd = -1;
+    address = {0};
   }
 
-  Socket::Socket() {
-    creatSocket();
+  Listener::Listener(int port, int backlog) {
+    listen(port, backlog);
   }
 
-  void Socket::creatSocket() {
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (sockfd < 0) {
-      throw "Failed to creat socket";
-    }
-  }
-
-  void Socket::send(Request request) {
-    std::string reqeustString = request.asString();
-    if (write(sockfd, &reqeustString, sizeof(reqeustString)) < 0) {
-      throw "Failed to write to socket";
-    }
-  }
-
-  Request Socket::recive() {
-    char buffer[256] = {0};
-    if (read(sockfd, &buffer, sizeof(buffer)) < 0) {
-      throw "Failed to read from socket";
-    }
-    std::string requestString = buffer;
-    return parseRequest(requestString);
-  }
-
-  void Socket::closeSocket() {
-    close(sockfd);
-  }
-
-  Server::Server() {
-    creatSocket();
-  }
-
-  Server::Server(int socketPort) {
-    creatSocket();
-    bindTo(socketPort); 
-  }
-
-  void Server::bindTo(int socketPort) {
+  void Listener::startListening(int port, int backlog) {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(socketPort); 
+    address.sin_port = htons(port);
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (sockfd < 0) throw "Failed to creat socket with errno: " + std::to_string(errno);
     
-    if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-      throw "Failed to bind socket";
-    }
+    int opt = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) throw "Failed on setsockopt with errno: " + std::to_string(errno);
+
+    if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) throw "Failed to bind socket with errno: " + std::to_string(errno);
+
+    if (listen(sockfd, backlog) < 0) throw "Failed to listen with errno: " + std::to_string(errno);
   }
 
-  void Server::startListening(int backlog) {
-    if (listen(sockfd, backlog) < 0) {
-      throw "Error listening to socket";
-    }
+  Comms Listener::waitForConnection() {
+    Comms comms;
+    socklen_t length = sizeof(comms.address);
+
+    comms.sockfd = accept(sockfd, (struct sockaddr *) &comms.address, &length);
+    if (comms.sockfd < 0) throw "Failed to accept conection with errno: " + std::to_string(errno);
+
+    return comms;
   }
 
-  Server Server::waitForConnection() {
-    Server connection;
-    socklen_t length = sizeof(connection.address);
-    connection.sockfd = accept(sockfd, (struct sockaddr *) &connection.address, &length);
-    if (connection.sockfd < 0) {
-      throw "Failed to accept connection";
-    }
-    return connection;
+  Comms::Comms() {
+    address = {0};
+    sockfd = -1;
   }
 
-  Client::Client() {
-    creatSocket();
+  Comms::Comms(std::string addressString, int port) {
+    connectTo(addressString, port);
   }
 
-  Client::Client(std::string serverAddress, int serverPort) {
-    creatSocket();
-    connectTo(serverAddress, serverPort);
-  }
-
-  void Client::connectTo(std::string serverAddress, int serverPort) {
+  void Comms::connectTo(std::string addressString, int port) {
     address.sin_family = AF_INET;
-    address.sin_port = htons(serverPort);
+    address.sin_port = htons(port);
 
-    if (inet_pton(AF_INET, serverAddress.c_str(), &address.sin_addr) <= 0) {
-      throw "Invalid Address";
-    }
+    if (inet_pton(AF_INET, addressString.c_str(), &address.sin_addr) <= 0) throw "Invalid address with errno: " + std::to_string(errno);
 
-    if (connect(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-      throw "Failed to connect to socket";
-    }
+    if (connect(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) throw "Failed to connect with errno: " + std::to_string(errno);
+  }
+
+  void Comms::send(Request request) {
+    std::string requestString = request.asString();
+
+    if (write(sockfd, &requestString, requestString.length()) < 0) throw "Failed to send request with errno: " + std::to_string(errno);
+  }
+
+  Request Comms::recive() {
+    char buffer[256] = {0};
+
+    if (read(sockfd, &buffer, sizeof(buffer)) < 0) throw "Failed to read request with errno: " + std::to_string(errno);
+    return Request(buffer);
   }
 }
