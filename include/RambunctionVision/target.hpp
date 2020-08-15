@@ -8,14 +8,9 @@
 
 namespace rv {
   struct Target {
-    int id;
     std::string name;
     std::vector<cv::Point> shape;
-    std::vector<cv::Point> bestMatch;
-    double currentMatchValue = std::numeric_limits<double>::infinity();
-    double bestMatchValue = std::numeric_limits<double>::infinity();
-    cv::Point pose;
-    Euler euler;
+    double error = std::numeric_limits<double>::infinity(); 
     void write(cv::FileStorage fs) const;
     void read(cv::FileNode fn); 
   };
@@ -30,12 +25,6 @@ namespace rv {
     else
       x.read(node);
   }
-
-  struct Match {
-    int id;
-    double current = std::numeric_limits<double>::infinity();
-    double best  = std::numeric_limits<double>::infinity();
-  };
 }
 
 #endif

@@ -8,6 +8,10 @@ namespace rv {
     fs << "AngleOffset" << angleOffset;
     fs << "CameraMatrix" << matrix;
     fs << "Distortion" << dst;
+    fs << "Thresholds" << thresholds;
+    fs << "Targets" << targets;
+    fs << "CalibrationConfig" << calibrateConfig;
+    fs << "ThresholdingConfig" << thresholdingConfig;
     fs << "}";  
   }
 
@@ -17,5 +21,9 @@ namespace rv {
     fn["AngleOffset"] >> angleOffset;
     fn["CameraMatrix"] >> matrix;
     fn["Distortion"] >> dst;
+    fn["Thresholds"] >> thresholds;
+    fn["Targtes"] >> targets;
+    fn["CalibrationConfig"] >> calibrateConfig;
+    fn["ThresholdingConfig"] >> thresholdingConfig;
   }
 }

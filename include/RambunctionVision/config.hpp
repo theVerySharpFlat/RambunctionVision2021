@@ -6,10 +6,6 @@
 
 #include <opencv2/core.hpp>
 
-#include "RambunctionVision/camera.hpp"
-#include "RambunctionVision/target.hpp"
-#include "RambunctionVision/thresholding.hpp"
-
 namespace rv {
   struct CalibrateConfig {
     cv::Size boardSize;

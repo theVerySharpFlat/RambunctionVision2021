@@ -1,19 +1,19 @@
 #include "hsvTunning.hpp"
 
-void hsvTunningPhotos(rv::HSV &hsv, rv::Camera camera, rv::ThresholdingConfig config) {
+void hsvTunningPhotos(rv::Camera &camera) {
 
   cv::namedWindow(window);
 
   // Trackbars to set thresholds for HSV values
-  cv::createTrackbar("Low H", window, &hsv.lowH, hsv.maxH, onLowH, &hsv);
-  cv::createTrackbar("High H", window, &hsv.highH, hsv.maxH, onHighH, &hsv);
-  cv::createTrackbar("Low S", window, &hsv.lowS, hsv.max, onLowS, &hsv);
-  cv::createTrackbar("High S", window, &hsv.highS, hsv.max, onHighS, &hsv);
-  cv::createTrackbar("Low V", window, &hsv.lowV, hsv.max, onLowV, &hsv);
-  cv::createTrackbar("High V", window, &hsv.highV, hsv.max, onHighV, &hsv);
+  cv::createTrackbar("Low H", window, &camera.thresholds.lowH, camera.thresholds.maxH, onLowH, &camera.thresholds);
+  cv::createTrackbar("High H", window, &camera.thresholds.highH, camera.thresholds.maxH, onHighH, &camera.thresholds);
+  cv::createTrackbar("Low S", window, &camera.thresholds.lowS, camera.thresholds.max, onLowS, &camera.thresholds);
+  cv::createTrackbar("High S", window, &camera.thresholds.highS, camera.thresholds.max, onHighS, &camera.thresholds);
+  cv::createTrackbar("Low V", window, &camera.thresholds.lowV, camera.thresholds.max, onLowV, &camera.thresholds);
+  cv::createTrackbar("High V", window, &camera.thresholds.highV, camera.thresholds.max, onHighV, &camera.thresholds);
 
   int currentImage = 0;
-  int numberOfImages = config.images.end() - config.images.begin();
+  int numberOfImages = camera.thresholdingConfig.images.end() - camera.thresholdingConfig.images.begin();
 
   bool showThresh = true;
   bool changed = true;
@@ -22,7 +22,7 @@ void hsvTunningPhotos(rv::HSV &hsv, rv::Camera camera, rv::ThresholdingConfig co
 
   while (true) {
 
-    image = cv::imread(config.images[currentImage]);
+    image = cv::imread(camera.thresholdingConfig.images[currentImage]);
     
     if (image.empty()) {
       std::cerr << "Error: Could not find: " << currentImage << '\n';
@@ -32,7 +32,7 @@ void hsvTunningPhotos(rv::HSV &hsv, rv::Camera camera, rv::ThresholdingConfig co
     // Convert from BGR to HSV colorspace
     cv::cvtColor(image, imageHSV, cv::COLOR_BGR2HSV);
     // Detect the object based on HSV Range Values
-    cv::inRange(imageHSV, hsv.lowScalar(), hsv.highScalar(), thresh);
+    cv::inRange(imageHSV, camera.thresholds.lowScalar(), camera.thresholds.highScalar(), thresh);
 
     cv::cvtColor(thresh, threshColor, cv::COLOR_GRAY2BGR);
 
@@ -68,7 +68,7 @@ void hsvTunningPhotos(rv::HSV &hsv, rv::Camera camera, rv::ThresholdingConfig co
   return;
 }
 
-void hsvTunningVideoCapture(rv::HSV &hsv, rv::Camera camera) {
+void hsvTunningVideoCapture(rv::Camera &camera) {
 
   cv::VideoCapture capture(camera.id);
 
@@ -81,12 +81,12 @@ void hsvTunningVideoCapture(rv::HSV &hsv, rv::Camera camera) {
   cv::namedWindow(window);
 
   // Trackbars to set thresholds for HSV values
-  cv::createTrackbar("Low H", window, &hsv.lowH, hsv.maxH, onLowH, &hsv);
-  cv::createTrackbar("High H", window, &hsv.highH, hsv.maxH, onHighH, &hsv);
-  cv::createTrackbar("Low S", window, &hsv.lowS, hsv.max, onLowS, &hsv);
-  cv::createTrackbar("High S", window, &hsv.highS, hsv.max, onHighS, &hsv);
-  cv::createTrackbar("Low V", window, &hsv.lowV, hsv.max, onLowV, &hsv);
-  cv::createTrackbar("High V", window, &hsv.highV, hsv.max, onHighV, &hsv);
+  cv::createTrackbar("Low H", window, &camera.thresholds.lowH, camera.thresholds.maxH, onLowH, &camera.thresholds);
+  cv::createTrackbar("High H", window, &camera.thresholds.highH, camera.thresholds.maxH, onHighH, &camera.thresholds);
+  cv::createTrackbar("Low S", window, &camera.thresholds.lowS, camera.thresholds.max, onLowS, &camera.thresholds);
+  cv::createTrackbar("High S", window, &camera.thresholds.highS, camera.thresholds.max, onHighS, &camera.thresholds);
+  cv::createTrackbar("Low V", window, &camera.thresholds.lowV, camera.thresholds.max, onLowV, &camera.thresholds);
+  cv::createTrackbar("High V", window, &camera.thresholds.highV, camera.thresholds.max, onHighV, &camera.thresholds);
   cv::Mat frame, frameHSV, thresh, threshColor, display;
 
   bool showThresh = true;
@@ -103,7 +103,7 @@ void hsvTunningVideoCapture(rv::HSV &hsv, rv::Camera camera) {
     // Convert from BGR to HSV colorspace
     cv::cvtColor(frame, frameHSV, cv::COLOR_BGR2HSV);
     // Detect the object based on HSV Range Values
-    cv::inRange(frameHSV, hsv.lowScalar(), hsv.highScalar(), thresh);
+    cv::inRange(frameHSV, camera.thresholds.lowScalar(), camera.thresholds.highScalar(), thresh);
 
     cv::cvtColor(thresh, threshColor, cv::COLOR_GRAY2BGR);
 
@@ -136,6 +136,6 @@ void hsvTunningVideoCapture(rv::HSV &hsv, rv::Camera camera) {
   return;
 }
 
-void hsvTunning(rv::HSV &hsv, rv::Camera camera, rv::ThresholdingConfig config) {
-  return config.usePhotos ? hsvTunningPhotos(hsv, camera, config) : hsvTunningVideoCapture(hsv, camera);
+void hsvTunning(rv::Camera &camera) {
+  return camera.thresholdingConfig.usePhotos ? hsvTunningPhotos(camera) : hsvTunningVideoCapture(camera);
 }

@@ -12,15 +12,14 @@
 #include "calibrate.hpp"
 #include "detectTargets.hpp"
 
-enum Option {CAMERA_CALIBRATION, SHOW_UNDISTORTED, HSV_TUNNING, DETECT_TARGETS, SAVE, EXIT};
+enum Option {CHOOSE_CAMERA, CAMERA_CALIBRATION, SHOW_UNDISTORTED, HSV_TUNNING, DETECT_TARGETS, SAVE, EXIT};
 
 int main(int argc, char **argv) {
   // Parse arguments
   const std::string keys =
-  "{ h ? help usage   |                     | prints this message                  }"
-  "{ @output          |    output.xml       | output file of vision config         }"
-  "{ @setupConfig     |   setupConfig.xml   | input file of calibration config     }"
-  "{ @startingPoint   | visionConfig.xml    | starting point for the visionConfig  }";
+  "{ h ? help usage |            | prints this message              }"
+  "{ @output        | output.xml | output file of vision config     }"
+  "{ @config        | config.xml | input file of calibration config }";
 
   cv::CommandLineParser parser(argc, argv, keys);
   parser.about("\nRambunctionVision2021 v0.0\nVision code for FRC Team Rambunction 4330\n");
@@ -31,44 +30,36 @@ int main(int argc, char **argv) {
   } 
 
   std::string outputFile = parser.get<std::string>(0);
-  std::string setupConfigFile = parser.get<std::string>(1);
-  std::string startingPointFile = parser.get<std::string>(2);
+  std::string configFile = parser.get<std::string>(1);
 
   if (!parser.check()) {
       parser.printErrors();
       return 0;
   }
 
-  // Read in from files
-  rv::CalibrateConfig calibrateConfig;
-  rv::ThresholdingConfig thresholdingConfig;
+  std::vector<rv::Camera> cameras;
+  std::vector<rv::Target> globalTargets;
 
-  cv::FileStorage fs(setupConfigFile, cv::FileStorage::READ);
-  fs["CalibrateConfig"] >> calibrateConfig;
-  fs["ThresholdingConfig"] >> thresholdingConfig;
-  fs.release();
-
-  rv::HSV thresholds;
-  rv::Camera camera ;
-  std::vector<rv::Target> targets;
-
-  fs.open(startingPointFile, cv::FileStorage::READ);
-  fs["Thresholds"] >> thresholds;
-  fs["Camera"] >> camera;
-  fs["Targets"] >> targets;
+  cv::FileStorage fs(configFile, cv::FileStorage::READ);
+  fs["Cameras"] >> cameras;
+  fs["GlobalTargets"] >> globalTargets;
   fs.release();
 
   bool saved = true;
 
+  rv::Camera currentCamera = cameras[0];
+
   while (true) {  
     // Show message
+    std::cout << "\nCurrent Camera: " << currentCamera.id << '\n';
     std::cout << "\nOptions:\n";
-    std::cout << "1. Calibrate Camera\n";
-    std::cout << "2. Show Undistorted\n";
-    std::cout << "3. HSV Tunning\n";
-    std::cout << "4. Detect Targets\n";
-    std::cout << "5. Save\n";
-    std::cout << "6. Exit\n";
+    std::cout << "1. Choose Camera\n";
+    std::cout << "2. Calibrate Camera\n";
+    std::cout << "3. Show Undistorted\n";
+    std::cout << "4. HSV Tunning\n";
+    std::cout << "5. Detect Targets\n";
+    std::cout << "6. Save\n";
+    std::cout << "7. Exit\n";
     std::cout << "\nEnter option number: ";
     int x;
     std::cin >> x;
@@ -77,35 +68,46 @@ int main(int argc, char **argv) {
     Option choice = static_cast<Option>(x-1); 
 
     switch (choice) {
-      case CAMERA_CALIBRATION: {
+      case CHOOSE_CAMERA: {
+        int id;
+        std::cout << "\nPossible Cameras:\n";
+
+        for (rv::Camera &camera : cameras) {
+          std::cout << camera.id << '\n';
+        }
+
+        std::cout << "\nEnter Camera id: ";
+        std::cin  >> id;
+
+        auto newCamera = std::find_if(cameras.begin(), cameras.end(), [i = id] (rv::Camera c) { return c.id == i; });
+
+        if (newCamera != cameras.end()) currentCamera = *newCamera;
+
+        break;
+      } case CAMERA_CALIBRATION: {
         saved = false;
         std::cout << "\nRunning Camera Calibration ...\n";
-        calibrate(calibrateConfig, camera);
+        calibrate(currentCamera);
         break;
-      }
-      case SHOW_UNDISTORTED: {
+      } case SHOW_UNDISTORTED: {
         std::cout << "\nShowing Undistorted ...\n";
-        showUndistorted(calibrateConfig, camera);
+        showUndistorted(currentCamera);
         break;
-      }
-      case HSV_TUNNING: {
+      } case HSV_TUNNING: {
         saved = false;
         std::cout << "\nRunning HSV Tunning ...\n";
-        hsvTunning(thresholds, camera, thresholdingConfig);
+        hsvTunning(currentCamera);
         break;
-      }
-      case DETECT_TARGETS: {
+      } case DETECT_TARGETS: {
         std::cout << "\nDetecting Targets ...\n";
-        detectTargets(camera, thresholds, targets, thresholdingConfig);
+        detectTargets(currentCamera, globalTargets);
         break;
-      }
-      case SAVE: {
+      } case SAVE: {
         // Save to file
         saved = true;
         fs.open(outputFile, cv::FileStorage::WRITE);
-        fs << "Thresholds" << thresholds;
-        fs << "Camera" << camera;
-        fs << "Targets" << targets;
+        fs << "Cameras" << cameras;
+        fs << "GlobalTargets" << globalTargets;
         fs.release();
       }
         break;

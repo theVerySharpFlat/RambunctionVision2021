@@ -17,6 +17,7 @@ namespace rv {
 
     Request();
     Request(std::string request);
+    Request(std::string action, std::string subject, std::string key, std::string value);
   };
 
   class Comms {
@@ -29,11 +30,11 @@ namespace rv {
       public:
         Comms();
         Comms(std::string address, int port);
-        ~Comms();
 
         void connectTo(std::string address, int port);   
         void send(Request request);
         Request recive();   
+        void closeConnection();
   };
 
   class Listener {
@@ -44,10 +45,10 @@ namespace rv {
     public:
       Listener();
       Listener(int port, int backlog);
-      ~Listener();
      
       void startListening(int port, int backlog);
       Comms waitForConnection();
+      void stopListening();
   };
 }
 #endif

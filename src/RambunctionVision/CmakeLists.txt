@@ -1,4 +1,4 @@
 find_package( OpenCV REQUIRED )
-add_library(RambunctionVision geometry.cpp camera.cpp target.cpp data.cpp config.cpp thresholding.cpp detection.cpp poseEstimation.cpp comms.cpp)
+add_library(RambunctionVision geometry.cpp camera.cpp target.cpp config.cpp thresholding.cpp detection.cpp poseEstimation.cpp comms.cpp)
 target_link_libraries(RambunctionVision ${OpenCV_LIBS})
 target_include_directories(RambunctionVision PRIVATE ${PROJECT_SOURCE_DIR}/include)

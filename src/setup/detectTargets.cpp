@@ -14,7 +14,11 @@
 #include "RambunctionVision/poseEstimation.hpp"
 #include "RambunctionVision/config.hpp"
 
-void detectTargetsVideoCapture(rv::Camera camera, rv::HSV thresholds, std::vector<rv::Target> targets) {
+void detectTargetsVideoCapture(rv::Camera camera, std::vector<rv::Target> globalTargets) {
+  std::vector<rv::Target> targets = globalTargets;
+  targets.reserve(globalTargets.size() + camera.targets.size());
+  targets.insert(camera.targets.begin(), camera.targets.end(), targets.end());
+
   cv::VideoCapture capture(camera.id);
 
   // Cheak Camera
@@ -40,7 +44,7 @@ void detectTargetsVideoCapture(rv::Camera camera, rv::HSV thresholds, std::vecto
     // Pre prosses image for contour detection
     // cv::blur(frame, blur, cv::Size(10,10));
     cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
-    cv::inRange(hsv, thresholds.lowScalar(), thresholds.highScalar(), thresh);
+    cv::inRange(hsv, camera.thresholds.lowScalar(), camera.thresholds.highScalar(), thresh);
     cv::cvtColor(thresh, threshColor, cv::COLOR_GRAY2BGR);
     display = showThresh ? threshColor : frame;
     
@@ -90,17 +94,20 @@ void detectTargetsVideoCapture(rv::Camera camera, rv::HSV thresholds, std::vecto
   return;
 }
 
-void detectTargetsPhotos(rv::Camera camera, rv::HSV thresholds, std::vector<rv::Target> targets, rv::ThresholdingConfig config) {
+void detectTargetsPhotos(rv::Camera &camera, std::vector<rv::Target> &globalTargets) {
+  std::vector<rv::Target> targets = globalTargets;
+  targets.reserve(globalTargets.size() + camera.targets.size());
+  targets.insert(camera.targets.begin(), camera.targets.end(), targets.end());
 
   const std::string window = "Detection";
   cv::namedWindow(window);
 
   int currentImage = 0;
-  int numberOfImages = config.images.end() - config.images.begin();
+  int numberOfImages = camera.thresholdingConfig.images.end() - camera.thresholdingConfig.images.begin();
   
   bool showThresh = false, showBox = true, useAxis = false, showUndistorted = false;
   while (true) {
-    cv::Mat image = cv::imread(config.images[currentImage]), blur, hsv, thresh, threshColor, edges,  display, undistorted;
+    cv::Mat image = cv::imread(camera.thresholdingConfig.images[currentImage]), blur, hsv, thresh, threshColor, edges,  display, undistorted;
 
     // Cheak Image
     if (image.empty()) {
@@ -111,7 +118,7 @@ void detectTargetsPhotos(rv::Camera camera, rv::HSV thresholds, std::vector<rv::
     // Pre prosses image for contour detection
     // cv::blur(image, blur, cv::Size(10,10));
     cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
-    cv::inRange(hsv, thresholds.lowScalar(), thresholds.highScalar(), thresh);
+    cv::inRange(hsv, camera.thresholds.lowScalar(), camera.thresholds.highScalar(), thresh);
     cv::cvtColor(thresh, threshColor, cv::COLOR_GRAY2BGR);
     display = showThresh ? threshColor : image;
     
@@ -165,6 +172,6 @@ void detectTargetsPhotos(rv::Camera camera, rv::HSV thresholds, std::vector<rv::
   return;
 }
 
-void detectTargets(rv::Camera camera, rv::HSV thresholds, std::vector<rv::Target> targets, rv::ThresholdingConfig config) {
-  return config.usePhotos ? detectTargetsPhotos(camera, thresholds, targets, config) : detectTargetsVideoCapture(camera, thresholds, targets);
+void detectTargets(rv::Camera &camera, std::vector<rv::Target> &globalTargets) {
+  return camera.thresholdingConfig.usePhotos ? detectTargetsPhotos(camera, globalTargets) : detectTargetsVideoCapture(camera, globalTargets);
 }

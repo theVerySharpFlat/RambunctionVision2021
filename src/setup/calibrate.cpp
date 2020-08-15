@@ -12,18 +12,18 @@
 #include "RambunctionVision/config.hpp"
 #include "RambunctionVision/poseEstimation.hpp"
 
-cv::Mat getUndistortedImage(rv::CalibrateConfig config, cv::Mat image, rv::Camera camera, bool undistortImage, bool showBox, bool useAxis) {
+cv::Mat getUndistortedImage(cv::Mat image, rv::Camera &camera, bool undistortImage, bool showBox, bool useAxis) {
   cv::Mat shown;
 
   // Finds and conditianalu draws chessboard corrners
   std::vector<cv::Point2f> corners;
-  bool foundChessboard = cv::findChessboardCorners(image, config.boardSize, corners, 
+  bool foundChessboard = cv::findChessboardCorners(image, camera.calibrateConfig.boardSize, corners, 
     cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK);
 
   if (showBox && !camera.matrix.empty() && !camera.dst.empty() && foundChessboard) {
-    rv::drawBox(image, rv::chessboardObjectPoints(config.boardSize, config.squareSize) , corners, camera, useAxis ? 1 : 0, true);
+    rv::drawBox(image, rv::chessboardObjectPoints(camera.calibrateConfig.boardSize, camera.calibrateConfig.squareSize) , corners, camera, useAxis ? 1 : 0, true);
   } else {
-    cv::drawChessboardCorners(image, config.boardSize, corners, foundChessboard);
+    cv::drawChessboardCorners(image, camera.calibrateConfig.boardSize, corners, foundChessboard);
   }
 
   // Conditioanly undistortes the image
@@ -35,7 +35,7 @@ cv::Mat getUndistortedImage(rv::CalibrateConfig config, cv::Mat image, rv::Camer
   return shown;
 }
 
-void showUndistortedVideoCapture(rv::CalibrateConfig config, rv::Camera &camera) {
+void showUndistortedVideoCapture(rv::Camera &camera) {
   cv::VideoCapture capture (camera.id);
 
   // Check Camera
@@ -59,7 +59,7 @@ void showUndistortedVideoCapture(rv::CalibrateConfig config, rv::Camera &camera)
     }
 
     // Conditiaonly undistorts the image
-    display = getUndistortedImage(config, frame, camera, undistortImage, showBox, useAxis);
+    display = getUndistortedImage(frame, camera, undistortImage, showBox, useAxis);
 
     cv::imshow(windowName, display);
 
@@ -77,17 +77,17 @@ void showUndistortedVideoCapture(rv::CalibrateConfig config, rv::Camera &camera)
   }
 }
 
-void showUndistortedPhotos(rv::CalibrateConfig config, std::vector<std::string> files, rv::Camera camera) {
+void showUndistortedPhotos(rv::Camera &camera) {
   const std::string window = "Undistorted";
   cv::namedWindow(window);
   
-  int numberOfImages = files.end() - files.begin();
+  int numberOfImages = camera.calibrateConfig.images.end() - camera.calibrateConfig.images.begin();
   int currentImage = 0;
 
   bool undistortImage = true, showBox = false, useAxis = false;
 
   while (true) {
-    cv::Mat image = cv::imread(files[currentImage]);
+    cv::Mat image = cv::imread(camera.calibrateConfig.images[currentImage]);
 
     // Checks Image Data
     if (image.empty()) {
@@ -96,7 +96,7 @@ void showUndistortedPhotos(rv::CalibrateConfig config, std::vector<std::string> 
     }
 
     // Conditiaonly undistorts image
-    cv::Mat display = getUndistortedImage(config, image, camera, undistortImage, showBox, useAxis);
+    cv::Mat display = getUndistortedImage(image, camera, undistortImage, showBox, useAxis);
     cv::imshow(window, display);
 
     // Parses hey presses
@@ -119,11 +119,11 @@ void showUndistortedPhotos(rv::CalibrateConfig config, std::vector<std::string> 
   return;
 }
 
-void showUndistorted(rv::CalibrateConfig config, rv::Camera camera) {
-  return (config.usePhotos) ? showUndistortedPhotos(config, config.images, camera) : showUndistortedVideoCapture(config, camera);
+void showUndistorted(rv::Camera &camera) {
+  return (camera.calibrateConfig.usePhotos) ? showUndistortedPhotos(camera) : showUndistortedVideoCapture(camera);
 }
 
-void calibrateFromVideoCapture(rv::CalibrateConfig config, rv::Camera &camera) {
+void calibrateFromVideoCapture(rv::Camera &camera) {
   const std::string windowName = "Camera Calibration";
   cv::namedWindow(windowName);
   cv::VideoCapture capture(camera.id);
@@ -140,7 +140,7 @@ void calibrateFromVideoCapture(rv::CalibrateConfig config, rv::Camera &camera) {
   auto lastPointCapture = std::chrono::high_resolution_clock::now();
 
   int count = 0;
-  while(count < config.numberOfImages) {
+  while(count < camera.calibrateConfig.numberOfImages) {
     cv::Mat frame;
     capture >> frame;
 
@@ -152,9 +152,9 @@ void calibrateFromVideoCapture(rv::CalibrateConfig config, rv::Camera &camera) {
     
     // Fins and draws Chessboars Corners
     std::vector<cv::Point2f> corners;
-    bool foundChessboard = cv::findChessboardCorners(frame, config.boardSize, corners, 
+    bool foundChessboard = cv::findChessboardCorners(frame, camera.calibrateConfig.boardSize, corners, 
       cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK);
-    cv::drawChessboardCorners(frame, config.boardSize, corners, foundChessboard);
+    cv::drawChessboardCorners(frame, camera.calibrateConfig.boardSize, corners, foundChessboard);
     
     // Calculates duration board has been in view to compare against delay
     auto now = std::chrono::high_resolution_clock::now();
@@ -167,7 +167,7 @@ void calibrateFromVideoCapture(rv::CalibrateConfig config, rv::Camera &camera) {
     int key = cv::waitKey(30);
 
     // Captures Points if delay period has passed or space bar is pressed
-    if(foundChessboard && ((config.automatic && duration.count() >= config.delay) || key == 32)) {
+    if(foundChessboard && ((camera.calibrateConfig.automatic && duration.count() >= camera.calibrateConfig.delay) || key == 32)) {
       lastPointCapture = now;
       imagePoints.push_back(corners);
       frame += cv::Scalar(255, 255, 255);
@@ -191,7 +191,7 @@ void calibrateFromVideoCapture(rv::CalibrateConfig config, rv::Camera &camera) {
   // Calculates vector of object points for the chessboard
   std::vector<std::vector<cv::Point3f>> objectPoints;
   for (auto i = imagePoints.begin(); i != imagePoints.end(); i++) {
-    objectPoints.push_back(rv::chessboardObjectPoints(config.boardSize, config.squareSize));
+    objectPoints.push_back(rv::chessboardObjectPoints(camera.calibrateConfig.boardSize, camera.calibrateConfig.squareSize));
   }
 
   // Runs calibration
@@ -211,16 +211,16 @@ void calibrateFromVideoCapture(rv::CalibrateConfig config, rv::Camera &camera) {
   std::cout << "\nDst Coefficents:\n" << dst << "\n";
 
   // Display results
-  showUndistortedVideoCapture(config, camera);
+  showUndistortedVideoCapture(camera);
   return;
 }
 
-void calibrateFromPhotos(rv::CalibrateConfig config, rv::Camera &camera) {
+void calibrateFromPhotos(rv::Camera &camera) {
   std::vector<std::vector<cv::Point2f>> imagePoints;
   cv::Size imageSize;
 
   // Iterate through images to collect points
-  for (auto file = config.images.begin(); file != config.images.end(); file++) {
+  for (auto file = camera.calibrateConfig.images.begin(); file != camera.calibrateConfig.images.end(); file++) {
     cv::Mat image = cv::imread(*file);
 
     // Cheaks Image Data
@@ -232,7 +232,7 @@ void calibrateFromPhotos(rv::CalibrateConfig config, rv::Camera &camera) {
     // Find chessboad points in image
     bool foundChessboard;
     std::vector<cv::Point2f> points;
-    foundChessboard = cv::findChessboardCorners(image, config.boardSize, points, 
+    foundChessboard = cv::findChessboardCorners(image, camera.calibrateConfig.boardSize, points, 
       cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK);
 
     if(foundChessboard) {
@@ -244,7 +244,7 @@ void calibrateFromPhotos(rv::CalibrateConfig config, rv::Camera &camera) {
   // Clalculates vector of object points for chessboard
   std::vector<std::vector<cv::Point3f>> objectPoints;
   for (auto i = imagePoints.begin(); i != imagePoints.end(); i++) {
-    objectPoints.push_back(rv::chessboardObjectPoints(config.boardSize, config.squareSize));
+    objectPoints.push_back(rv::chessboardObjectPoints(camera.calibrateConfig.boardSize, camera.calibrateConfig.squareSize));
   }
 
   // Run calibration
@@ -264,9 +264,9 @@ void calibrateFromPhotos(rv::CalibrateConfig config, rv::Camera &camera) {
   std::cout << "\nDst Coefficents:\n" << dst << "\n";
 
   // Show Results
-  showUndistortedPhotos(config, config.images, camera);
+  showUndistortedPhotos(camera);
 }
 
-void calibrate(rv::CalibrateConfig config, rv::Camera &camera) {
-  return config.usePhotos ? calibrateFromPhotos(config, camera) : calibrateFromVideoCapture(config, camera);
+void calibrate(rv::Camera &camera) {
+  return camera.calibrateConfig.usePhotos ? calibrateFromPhotos(camera) : calibrateFromVideoCapture(camera);
 }

@@ -5,8 +5,8 @@
 #include "RambunctionVision/target.hpp"
 #include "RambunctionVision/thresholding.hpp"
 
-void detectTargets(rv::Camera camera, rv::HSV thresholds, std::vector<rv::Target> targets, rv::ThresholdingConfig config);
-void detectTargetsPhotos(rv::Camera camera, rv::HSV thresholds, std::vector<rv::Target> targets, rv::ThresholdingConfig config);
-void detectTargetsVideoCapture(rv::Camera camera, rv::HSV thresholds, std::vector<rv::Target> targets);
+void detectTargets(rv::Camera &camera, std::vector<rv::Target> &globalTargets);
+void detectTargetsPhotos(rv::Camera &camera, std::vector<rv::Target> &globalTargets);
+void detectTargetsVideoCapture(rv::Camera &camera, std::vector<rv::Target> &globalTargets);
 
 #endif

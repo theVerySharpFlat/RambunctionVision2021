@@ -16,9 +16,9 @@
 
 const static std::string window = "HSV Tunning";
 
-void hsvTunning(rv::HSV &hsv, rv::Camera camera, rv::ThresholdingConfig config);
-void hsvTunningPhotos(rv::HSV &hsv, rv::Camera camera, rv::ThresholdingConfig config);
-void hsvTunningVideoCapture(rv::HSV &hsv, rv::Camera camera);
+void hsvTunning(rv::Camera &camera);
+void hsvTunningPhotos(rv::Camera &camera);
+void hsvTunningVideoCapture(rv::Camera &camera);
 
 static void onLowH(int, void *ptr) {
   rv::HSV *hsv = (rv::HSV*) ptr;
