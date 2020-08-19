@@ -4,7 +4,6 @@
 #include <vector>
 #include <opencv2/core.hpp>
 
-#include "RambunctionVision/geometry.hpp"
 #include "RambunctionVision/target.hpp"
 #include "RambunctionVision/thresholding.hpp"
 #include "RambunctionVision/config.hpp"
