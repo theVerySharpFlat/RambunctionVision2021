@@ -6,9 +6,9 @@
 
 namespace rv {
   struct Euler {
-    double roll = 0;
-    double pitch = 0;
-    double yaw = 0;
+    double x = 0;
+    double y = 0;
+    double z = 0;
     void write(cv::FileStorage fs) const;
     void read(cv::FileNode fn);
   };

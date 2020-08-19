@@ -14,10 +14,10 @@
 #include "RambunctionVision/poseEstimation.hpp"
 #include "RambunctionVision/config.hpp"
 
-void detectTargetsVideoCapture(rv::Camera camera, std::vector<rv::Target> globalTargets) {
+void detectTargetsVideoCapture(rv::Camera &camera, std::vector<rv::Target> &globalTargets) {
   std::vector<rv::Target> targets = globalTargets;
   targets.reserve(globalTargets.size() + camera.targets.size());
-  targets.insert(camera.targets.begin(), camera.targets.end(), targets.end());
+  targets.insert(targets.end(), camera.targets.begin(), camera.targets.end());
 
   cv::VideoCapture capture(camera.id);
 
@@ -97,7 +97,7 @@ void detectTargetsVideoCapture(rv::Camera camera, std::vector<rv::Target> global
 void detectTargetsPhotos(rv::Camera &camera, std::vector<rv::Target> &globalTargets) {
   std::vector<rv::Target> targets = globalTargets;
   targets.reserve(globalTargets.size() + camera.targets.size());
-  targets.insert(camera.targets.begin(), camera.targets.end(), targets.end());
+  targets.insert(targets.end(), camera.targets.begin(), camera.targets.end());
 
   const std::string window = "Detection";
   cv::namedWindow(window);

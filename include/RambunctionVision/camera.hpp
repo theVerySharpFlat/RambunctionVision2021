@@ -17,10 +17,12 @@ namespace rv {
     cv::Mat dst;
     rv::HSV thresholds;
     cv::Point3f offset;
-    rv::Euler angleOffset;
+    cv::Vec3d angleOffset;
     std::vector<rv::Target> targets;
     rv::CalibrateConfig calibrateConfig;
     rv::ThresholdingConfig thresholdingConfig;
+
+    cv::Mat offsetMatrix(); 
 
     void write(cv::FileStorage fs) const;
     void read(cv::FileNode fn); 

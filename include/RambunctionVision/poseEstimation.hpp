@@ -6,6 +6,7 @@
 #include <opencv2/core.hpp>
 
 #include "RambunctionVision/camera.hpp"
+#include "RambunctionVision/geometry.hpp"
 
 namespace rv {
   #define Box 0

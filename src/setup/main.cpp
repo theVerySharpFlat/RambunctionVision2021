@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
   bool saved = true;
 
-  rv::Camera currentCamera = cameras[0];
+  rv::Camera &currentCamera = cameras[0];
 
   while (true) {  
     // Show message

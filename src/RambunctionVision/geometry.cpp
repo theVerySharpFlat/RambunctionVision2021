@@ -3,15 +3,15 @@
 namespace rv {
   void Euler::write(cv::FileStorage fs) const {
     fs << "{";
-    fs << "rool" << roll;
-    fs << "pitch" << pitch;
-    fs << "yaw" << yaw; 
+    fs << "x" << x;
+    fs << "y" << y;
+    fs << "z" << z; 
     fs << "}";  
   }
 
   void Euler::read(const cv::FileNode fn) {
-    fn["roll"] >> roll;
-    fn["pitch"] >> pitch;
-    fn["yaw"] >> yaw;
+    fn["x"] >> x;
+    fn["y"] >> y;
+    fn["z"] >> z;
   }
 }
