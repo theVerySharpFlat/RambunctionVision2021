@@ -4,8 +4,6 @@
 #include <vector>
 #include <opencv2/core.hpp>
 
-#include "geometry.hpp"
-
 namespace rv {
   struct Target {
     std::string name;
