@@ -5,13 +5,11 @@
       <ID>0</ID>
       <!--Physical ofset of the camera from the center of the robot-->
       <Offset>
-      0 0 0
+        0 0 0
       </Offset>
       <!--Physical angle offset of the camera from forward-->
       <AngleOffset>
-        <rool>0.</rool>
-        <pitch>0.</pitch>
-        <yaw>0.</yaw>
+        0 0 0
       </AngleOffset>
       <!--Intresic Matrix for pose estimation (Dont edit manuly. Thr program will calculate these values)-->
       <CameraMatrix type_id="opencv-matrix">
@@ -50,15 +48,6 @@
 
       <!--Targets to detect by this specific camera-->
       <Targets>
-        <_>
-          <Name>camera0_test</Name>
-          <Shape>
-            0 0
-            1 0
-            1 1
-            0 1
-          </Shape>
-        </_>
       </Targets>
 
       <CalibrationConfig>
@@ -75,7 +64,7 @@
         <!--Delay in ms between captures if Automatic is not 0-->
         <Delay>2500</Delay>
         <!--Uses photos instead of video capture is not 0-->
-        <UsePhotos>1</UsePhotos>
+        <UsePhotos>0</UsePhotos>
         <!--List of the calibration photos used if UseUhotos is not 0-->
         <Images>
             images/calibrateImages/0000.jpg
@@ -99,7 +88,7 @@
       <!--Configuation data for thresholding-->
       <ThresholdingConfig>
         <!--if not 0 the program will use the photos below to calibrate the camera-->
-        <UsePhotos>1</UsePhotos>
+        <UsePhotos>0</UsePhotos>
         <!--Images to use id UsePhotos is not 0-->
         <Images>
           images/thresholdImages/0000.jpg

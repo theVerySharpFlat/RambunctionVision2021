@@ -46,11 +46,18 @@ namespace rv {
   }
 
   void drawBox(cv::Mat &image, std::vector<cv::Point3f> objectPoints, std::vector<cv::Point2f> imagePoints, rv::Camera camera, int type, bool invert) {
-    cv::Mat rvec, tvec;
+    cv::Mat rvec, tvec, rotation, transformation, corrected;
     cv::RotatedRect box2d = cv::minAreaRect(asPoint(objectPoints));
+    double data[4] = {0.0,0.0,0.0,1.0};
 
     // Solves perspective-n-point returning a rotation vector (rvec) and translation vector (tvec)
     cv::solvePnP(objectPoints, imagePoints, camera.matrix, camera.dst, rvec, tvec);
+    cv::Rodrigues(rvec, rotation);
+    cv::hconcat(rotation, tvec, transformation);
+    cv::vconcat(transformation, cv::Mat(1,4, CV_64F, &data), transformation);
+    corrected = camera.offsetMatrix() * transformation;
+    cv::Rodrigues(corrected.rowRange(0, 3).colRange(0,3), rvec);
+    tvec = corrected.rowRange(0,3).colRange(3,4);
 
     switch (type) {
       case Box: {
