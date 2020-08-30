@@ -261,7 +261,7 @@ The subjects are either a given target name followed by the id of the camera tha
 ### Keys
 * Camera Keys
     * `id` - the id of the camera
-    * `fps` - the average capture rate of the camera including processing time of the last 4 captures (not yet implemented)
+    * `fps` - the average capture rate of the camera including processing time of the last 4 captures *(not yet implemented)*
     * `rawFPS` - raw frame rate of the camera not inculding processing time
     * `size` - size of the images the camera produces
     * `offset` - offset of the camera from the origin
