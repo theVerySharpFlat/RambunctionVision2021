@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
   // Parse arguments
   const std::string keys =
   "{ h ? help usage |            | prints this message              }"
-  "{ @output        | output.xml | output file of vision config     }"
-  "{ @config        | config.xml | input file of calibration config }";
+  "{ @input         |  input.xml | output file of vision config     }"
+  "{ @output        |            | input file of calibration config }";
 
   cv::CommandLineParser parser(argc, argv, keys);
   parser.about("\nRambunctionVision2021 v0.0\nVision code for FRC Team Rambunction 4330\n");
@@ -29,8 +29,11 @@ int main(int argc, char **argv) {
     return 0;
   } 
 
-  std::string outputFile = parser.get<std::string>(0);
-  std::string configFile = parser.get<std::string>(1);
+  std::string inputFile = parser.get<std::string>(0);
+  std::string outputFile = parser.get<std::string>(1);
+
+  outputFile = outputFile == "" ? inputFile : outputFile;
+
 
   if (!parser.check()) {
       parser.printErrors();
@@ -40,7 +43,7 @@ int main(int argc, char **argv) {
   std::vector<rv::Camera> cameras;
   std::vector<rv::Target> globalTargets;
 
-  cv::FileStorage fs(configFile, cv::FileStorage::READ);
+  cv::FileStorage fs(inputFile, cv::FileStorage::READ);
   fs["Cameras"] >> cameras;
   fs["GlobalTargets"] >> globalTargets;
   fs.release();
