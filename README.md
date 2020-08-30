@@ -241,7 +241,7 @@ The program takes 1 input file from the setup pogram. You can use an optional `-
 $ ./vision config.xml --port=4330
 ```
 
-There is also a simple client program called `simpleClient` that can be run to test the program. 
+There is also a simple client program called `simpleClient` that can be run to test the program. It takes the an address and port as it's arguments, and can be used to manuely send request to the main vision program.
 
 ### Requests
 The request follow the format of:
