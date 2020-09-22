@@ -106,8 +106,11 @@ void detection(rv::Camera camera, std::vector<rv::Target> globalTargets, std::ma
 
   // bool recording = false;
 
-  while (true) {
-    cv::Mat frame, hsv, thresh;
+  cv::Mat frame, hsv, thresh;
+
+  cv::Mat rvec, tvec, rotation, transform, corrected, mtxR, mtxQ;
+
+  while (true)  {
 
     capture >> frame;
 
@@ -128,8 +131,6 @@ void detection(rv::Camera camera, std::vector<rv::Target> globalTargets, std::ma
     rv::matchTargets(targets, contours, found);
 
     for (rv::Target &find :  found) {
-      cv::Mat rvec, tvec, rotation, transform, corrected, mtxR, mtxQ;
-
       std::vector<cv::Point2f> undistortedPoints;
       cv::undistortPoints(rv::asPointFloat(find.shape), undistortedPoints, camera.matrix, camera.dst);
 
@@ -151,7 +152,7 @@ void detection(rv::Camera camera, std::vector<rv::Target> globalTargets, std::ma
 
       mutex.lock(); 
         data[find.name + std::to_string(camera.id)]["name"] = find.name;
-        data[find.name + std::to_string(camera.id)] ["matchError"] = std::to_string(find.error);
+        data[find.name + std::to_string(camera.id)]["matchError"] = std::to_string(find.error);
         data[find.name + std::to_string(camera.id)]["rawPose"] = "{" + std::to_string(box.center.x - camera.matrix.at<double>(0,2)); + "," + std::to_string(box.center.y - camera.matrix.at<double>(1,2)) + "}";
         data[find.name + std::to_string(camera.id)]["rawArea"] = std::to_string(cv::contourArea(find.shape));
         data[find.name + std::to_string(camera.id)]["boxSize"] = "{" + std::to_string(box.size.height) + "," + std::to_string(box.size.width) + "}";
