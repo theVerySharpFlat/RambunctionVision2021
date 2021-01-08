@@ -84,7 +84,7 @@ uses cmake to configure opencv for install to the ~/usr directory
 ```
 $ cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=~/usr/local ..
 ```
-copiles and installes opencv
+compiles and installs opencv
 ```
 $ make
 $ make install
